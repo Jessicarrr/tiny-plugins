@@ -1,0 +1,18 @@
+{
+  "name": "workflow",
+  "version": "0.1.0",
+  "description": "Workflow plugin",
+  "author": {
+    "name": "Local developer"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Workflow",
+    "shortDescription": "Use Workflow in Codex.",
+    "longDescription": "Workflow adds a local Codex plugin scaffold.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Help me use Workflow."
+  }
+}
