@@ -1,40 +1,39 @@
 # Tiny Plugins
 
-A small, repo-local marketplace for Codex plugins. Clone the repository, register the marketplace, and install only the plugins you want.
+Tiny Plugins is a local marketplace for Codex plugins. It provides small, reusable skills for
+software development.
 
-## Installation
+## Install
 
-From the repository root:
+From the repository root, add the marketplace:
 
 ```powershell
 codex plugin marketplace add .
 ```
 
-Check that the marketplace is registered:
-
-```powershell
-codex plugin marketplace list
-```
-
-Install a specific plugin:
+Install the `workflow` plugin:
 
 ```powershell
 codex plugin add workflow@tiny-plugins
 ```
 
-Registering the marketplace does not install every plugin. Install each plugin individually as needed. Start a new Codex thread after installing a plugin so its skills are available.
+Start a new Codex thread after installation.
+
+## Update a plugin in Codex
+
+If you're running ChatGPT Codex and you change a plugin, you need to run the cache-busting script:
+
+```powershell
+python bust_cache.py workflow
+```
+
+This script updates the plugin version and reinstalls it. Codex needs this step to load the new version.
+Claude and other tools may not need it.
+
+Use `--cachebuster <token>` for a repeatable version, or `--no-install` to update the manifest only.
 
 ## Plugins
 
 ### `workflow`
 
-For implementation, code review, planning, and related software-development workflows. It currently includes a small `hello` skill for verifying that the plugin is installed correctly.
-
-## Repository layout
-
-```text
-.
-├── .agents/plugins/marketplace.json
-└── plugins/
-    └── workflow/
-```
+Skills for planning, clarification, implementation, review, refactoring, and ticket writing.
