@@ -12,6 +12,7 @@ Check for:
 - bugs or behavior regressions
 - acceptance criteria that are missing, unclear, or unmet, when acceptance criteria exist
 - duplicated code that should be shared or simplified
+- functions whose names do not match what their bodies do
 - important behavior without test coverage
 
 For each finding, state the impact, location, and a concise recommendation. If there are no findings, say so.

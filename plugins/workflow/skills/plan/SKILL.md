@@ -18,7 +18,9 @@ The plan must help a developer who does not know this change understand what to 
 5. Reuse clear patterns that already exist in the repository.
 6. Define how the change will be verified.
 
-Keep the design simple. Prefer direct control flow, clear names, visible state changes, and local responsibilities. Avoid new layers, generic helpers, or abstractions unless they make the change easier to understand or maintain.
+Keep the design simple. Prefer direct control flow, clear names, visible state changes, and local responsibilities.
+
+If the repository does not contain enough information, state the gap and ask questions needed to continue.
 
 ## Plan format
 
@@ -26,14 +28,12 @@ Write a standalone plan. Include:
 
 - **Goal:** the problem and desired result.
 - **Current path:** where the behaviour starts and how it works now.
-- **Changes:** files or components to update, in implementation order.
+- **Changes:** files or components to update, in implementation order. Include code snippets, don't be afraid to use these liberally.
 - **Decisions:** important choices and their reasons.
 - **State and side effects:** what changes, where it changes, and what can be observed.
 - **Verification:** tests, checks, or manual steps that prove the result.
-- **Open questions:** only questions that block a safe or correct plan.
 
 Use plain, concise language. Use one sentence for one idea. Prefer active voice. Explain unfamiliar terms when first used. Do not hide key reasoning in vague phrases such as "update the system" or "handle the logic".
-Make sure the plan is easy to follow for somebody with zero context, or somebody who hasn't read this conversation.
 
 ## Code design philosophy
 
@@ -47,5 +47,15 @@ When planning, make sure you consider the following questions:
 - Is any abstraction making the design harder to follow?
 - Could any part be written more directly?
 - Can the reader understand the plan without the original conversation?
+- Design the code so that it's easily understandable for somebody with poor working memory.
 
-If the repository does not contain enough information, state the gap and ask questions needed to continue.
+## Plan language
+
+Make sure the plan is easy to follow for somebody with zero context, or somebody who
+hasn't read the current conversation.
+
+The plan should explain how and why the code is simple, and how the code is designed to be
+easy to interpret and understand.
+
+The final plan should be written for an audience with poor working memory. It should
+be concise. It should also use asd-ste100 language.

@@ -19,3 +19,15 @@ Use this readability test while reviewing:
 - Could an unfamiliar developer understand the implementation from the code itself?
 
 Explain the recommended changes concretely, state the behavior to preserve, and describe how to verify it.
+The goal is to make the code easily understandable to somebody with poor working memory.
+
+## Proposal
+
+When done, write a refactor proposal. The user may specify a specific place for it to go, for example
+a document, an issue or ticket, or anywhere else. If they didn't specify, write it in chat.
+
+The proposal should:
+- Write the purpose of the refactor, including that it's for making the code easily understandable.
+- Use whitespace to break up large blocks of text or dot points.
+- Be divided into easily digestible pieces.
+- Use simple language, active voice, and asd-ste100 language.
