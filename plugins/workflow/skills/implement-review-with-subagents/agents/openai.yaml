@@ -1,0 +1,7 @@
+interface:
+  display_name: "Implement and Review with Subagents"
+  short_description: "Luna implements; Terra reviews until done"
+  default_prompt: "Use $implement-review-with-subagents to implement this change and fix all real review issues."
+
+policy:
+  allow_implicit_invocation: false

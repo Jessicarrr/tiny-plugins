@@ -10,6 +10,14 @@ Use this skill when the user asks to implement a software change.
 Read the relevant code, tests, documents, and requirements before you change files.
 Trace the current behavior and identify the acceptance criteria, if any.
 
+**Style rules**
+- Make sure to add whitespace to code to divide up logical sections,
+  and increase readability.
+- Make sure control flow is explicit and written in if statements,
+  rather than implied through other mechanisms like catch blocks or
+  non-obvious behaviours.
+
+**Implementation rules**
 Make the smallest clear change that fulfills the requirements.
 
 - Reuse existing code and patterns when they fit.

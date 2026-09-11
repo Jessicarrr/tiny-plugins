@@ -27,25 +27,24 @@ If the repository does not contain enough information, state the gap and ask que
 Write a standalone plan. Include:
 
 - **Goal:** the problem and desired result.
-- **Current path:** where the behaviour starts and how it works now.
-- **Changes:** files or components to update, in implementation order. Include code snippets, don't be afraid to use these liberally.
+- **How it works now:** where the behaviour starts and how it works now.
+- **Changes:** How to do this change. Be very detailed. Use mermaid diagrams, and code snippets liberally.
 - **Decisions:** important choices and their reasons.
 - **State and side effects:** what changes, where it changes, and what can be observed.
 - **Verification:** tests, checks, or manual steps that prove the result.
 
-Use plain, concise language. Use one sentence for one idea. Prefer active voice. Explain unfamiliar terms when first used. Do not hide key reasoning in vague phrases such as "update the system" or "handle the logic".
+Use plain, concise language. Use one sentence for one idea. Prefer active voice.
+Explain unfamiliar terms when first used.
 
 ## Code design philosophy
 
 When planning, make sure you consider the following questions:
 
-- Can the reader see where the behaviour starts?
-- Can the reader follow the main path without opening many files?
+- When reading the code, is it obvious where the main path starts?
 - Are side effects and state changes clear?
 - Do names explain why each part exists?
 - Does each responsibility stay near the data or component that owns it?
-- Is any abstraction making the design harder to follow?
-- Could any part be written more directly?
+- Is the control flow easy to follow, or indirect?
 - Can the reader understand the plan without the original conversation?
 - Design the code so that it's easily understandable for somebody with poor working memory.
 
