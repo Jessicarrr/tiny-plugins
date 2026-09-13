@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Implement a requested change after understanding the codebase and requirements.
+description: Use when implementing code.
 ---
 
 # Implement
@@ -26,5 +26,6 @@ Make the smallest clear change that fulfills the requirements.
 - Use direct control flow, clear names, and small local responsibilities.
 - Keep state changes and side effects easy to find.
 - Write code that a reader with poor working memory can follow.
+- When adding automated tests, do not make production code more complicated just to improve test coverage. Prefer simpler production code over higher test coverage.
 
 Verify the changed behavior with relevant tests or checks. State what you changed and how you verified it.

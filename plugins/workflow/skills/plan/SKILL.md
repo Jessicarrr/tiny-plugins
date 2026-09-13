@@ -47,6 +47,7 @@ When planning, make sure you consider the following questions:
 - Is the control flow easy to follow, or indirect?
 - Can the reader understand the plan without the original conversation?
 - Design the code so that it's easily understandable for somebody with poor working memory.
+- When planning automated tests, do not make production code more complicated just to improve test coverage. Prefer simpler production code over higher test coverage.
 
 ## Plan language
 
