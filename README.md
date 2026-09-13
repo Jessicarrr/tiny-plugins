@@ -24,13 +24,19 @@ Start a new Codex thread after installation.
 If you're running ChatGPT Codex and you change a plugin, you need to run the cache-busting script:
 
 ```powershell
-python bust_cache.py workflow
+python bust_cache.py workflow patch
 ```
 
-This script updates the plugin version and reinstalls it. Codex needs this step to load the new version.
+The final argument is required and chooses the version component to bump:
+
+- `patch`: bug fixes and small backward-compatible changes (`0.1.0` -> `0.1.1`)
+- `minor`: new backward-compatible features (`0.1.1` -> `0.2.0`)
+- `major`: breaking changes or major overhauls (`0.2.0` -> `1.0.0`)
+
+The script updates the plugin version and reinstalls it. Codex needs this step to load the new version.
 Claude and other tools may not need it.
 
-Use `--cachebuster <token>` for a repeatable version, or `--no-install` to update the manifest only.
+Use `--no-install` to update the manifest only.
 
 ## Plugins
 

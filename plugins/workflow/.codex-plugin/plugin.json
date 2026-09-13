@@ -1,6 +1,6 @@
 {
   "name": "workflow",
-  "version": "0.1.1+codex.local-20260911-133748",
+  "version": "0.1.2",
   "description": "Workflow plugin",
   "author": {
     "name": "Local developer"

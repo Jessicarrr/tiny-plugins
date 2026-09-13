@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bust a local Codex plugin's cache and reinstall it from this marketplace."""
+"""Bump a local Codex plugin's version and reinstall it from this marketplace."""
 
 from __future__ import annotations
 
@@ -9,13 +9,17 @@ import re
 import shutil
 import subprocess
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
 
 IDENTIFIER_RE = re.compile(r"^[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*$")
-TOKEN_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+VERSION_RE = re.compile(
+    r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
+    r"(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?"
+    r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$"
+)
+BUMP_TYPES = ("patch", "minor", "major")
 
 
 def find_codex() -> str:
@@ -50,7 +54,32 @@ def marketplace_name(marketplace_path: Path) -> str:
     return name
 
 
-def update_manifest(manifest_path: Path, cachebuster: str | None = None) -> tuple[str, str]:
+def bump_version(version: str, bump: str) -> str:
+    """Return the next version after applying a SemVer major/minor/patch bump."""
+    if bump not in BUMP_TYPES:
+        valid_bumps = ", ".join(BUMP_TYPES)
+        raise ValueError(f"Version bump must be one of: {valid_bumps}")
+
+    match = VERSION_RE.fullmatch(version)
+    if match is None:
+        raise ValueError(f"Plugin version must be a valid SemVer version: {version}")
+
+    major, minor, patch = (int(value) for value in match.groups()[:3])
+
+    if bump == "major":
+        major += 1
+        minor = 0
+        patch = 0
+    elif bump == "minor":
+        minor += 1
+        patch = 0
+    else:
+        patch += 1
+
+    return f"{major}.{minor}.{patch}"
+
+
+def update_manifest(manifest_path: Path, bump: str) -> tuple[str, str]:
     manifest = read_json(manifest_path)
 
     plugin_name = manifest.get("name")
@@ -63,15 +92,7 @@ def update_manifest(manifest_path: Path, cachebuster: str | None = None) -> tupl
     if not isinstance(version, str) or not version:
         raise ValueError(f"Plugin manifest does not contain a valid version: {manifest_path}")
 
-    if cachebuster is None:
-        cachebuster = datetime.now(timezone.utc).strftime("local-%Y%m%d-%H%M%S")
-    elif not TOKEN_RE.fullmatch(cachebuster):
-        raise ValueError(
-            "Cachebuster must contain only letters, numbers, '.', '_' or '-' "
-            "and start with a letter or number."
-        )
-
-    new_version = f"{version.split('+', 1)[0]}+codex.{cachebuster}"
+    new_version = bump_version(version, bump)
     manifest["version"] = new_version
 
     with manifest_path.open("w", encoding="utf-8", newline="\n") as manifest_file:
@@ -85,7 +106,7 @@ def refresh_plugin(
     plugin_name: str,
     repo_root: Path,
     marketplace_path: Path,
-    cachebuster: str | None = None,
+    bump: str,
     install: bool = True,
     run: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run,
 ) -> str:
@@ -109,7 +130,7 @@ def refresh_plugin(
         )
 
     selected_marketplace = marketplace_name(marketplace_path)
-    actual_name, new_version = update_manifest(manifest_path, cachebuster)
+    actual_name, new_version = update_manifest(manifest_path, bump)
     print(f"Updated {actual_name} to version {new_version}")
 
     if install:
@@ -128,17 +149,18 @@ def refresh_plugin(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Bust a local Codex plugin cache and reinstall the plugin."
+        description="Bump a local Codex plugin version and reinstall the plugin."
     )
     parser.add_argument("plugin_name", help="Plugin name, for example: workflow")
+    parser.add_argument(
+        "bump",
+        choices=BUMP_TYPES,
+        help="Version component to bump: patch (bug fix), minor (new feature), or major (breaking change).",
+    )
     parser.add_argument(
         "--marketplace-path",
         type=Path,
         help="Path to marketplace.json (default: .agents/plugins/marketplace.json)",
-    )
-    parser.add_argument(
-        "--cachebuster",
-        help="Optional deterministic token; otherwise a UTC timestamp is generated.",
     )
     parser.add_argument(
         "--no-install",
@@ -158,7 +180,7 @@ def main() -> int:
             args.plugin_name,
             repo_root,
             marketplace_path,
-            cachebuster=args.cachebuster,
+            bump=args.bump,
             install=not args.no_install,
         )
     except (OSError, ValueError, RuntimeError) as exc:

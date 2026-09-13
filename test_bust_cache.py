@@ -10,7 +10,7 @@ import bust_cache
 
 
 class BustCacheTests(unittest.TestCase):
-    def make_repo(self, version="0.1.0+codex.old-token"):
+    def make_repo(self, version="0.1.0"):
         root = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, root)
         manifest_path = root / "plugins" / "workflow" / ".codex-plugin" / "plugin.json"
@@ -23,30 +23,53 @@ class BustCacheTests(unittest.TestCase):
         marketplace_path.write_text(json.dumps({"name": "tiny-plugins"}), encoding="utf-8")
         return root, manifest_path, marketplace_path
 
-    def test_replaces_existing_suffix_and_reinstalls(self):
+    def test_patch_bump_and_reinstalls(self):
         root, manifest_path, marketplace_path = self.make_repo()
         run = Mock(return_value=subprocess.CompletedProcess([], 0))
 
         with patch.object(bust_cache, "find_codex", return_value="codex.CMD"):
             version = bust_cache.refresh_plugin(
-                "workflow", root, marketplace_path, "local-test-123", run=run
+                "workflow", root, marketplace_path, "patch", run=run
             )
 
-        self.assertEqual(version, "0.1.0+codex.local-test-123")
+        self.assertEqual(version, "0.1.1")
         self.assertEqual(json.loads(manifest_path.read_text(encoding="utf-8"))["version"], version)
         run.assert_called_once_with(
             ["codex.CMD", "plugin", "add", "workflow@tiny-plugins"], check=False
         )
 
-    def test_preserves_version_prefix(self):
+    def test_bump_examples(self):
+        examples = (
+            ("0.10.0", "patch", "0.10.1"),
+            ("0.10.9", "patch", "0.10.10"),
+            ("0.10.99", "patch", "0.10.100"),
+            ("0.10.100", "minor", "0.11.0"),
+            ("0.99.1", "minor", "0.100.0"),
+            ("0.99515.94184", "major", "1.0.0"),
+            ("9.0.0", "major", "10.0.0"),
+        )
+
+        for version, bump, expected in examples:
+            with self.subTest(version=version, bump=bump):
+                self.assertEqual(bust_cache.bump_version(version, bump), expected)
+
+    def test_bump_discards_prerelease_and_build_metadata(self):
         root, manifest_path, marketplace_path = self.make_repo("1.2.3-beta.1+codex.previous")
 
         bust_cache.refresh_plugin(
-            "workflow", root, marketplace_path, "local-test", install=False
+            "workflow", root, marketplace_path, "patch", install=False
         )
 
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        self.assertEqual(manifest["version"], "1.2.3-beta.1+codex.local-test")
+        self.assertEqual(manifest["version"], "1.2.4")
+
+    def test_rejects_invalid_bump(self):
+        with self.assertRaisesRegex(ValueError, "one of: patch, minor, major"):
+            bust_cache.bump_version("1.2.3", "timestamp")
+
+    def test_rejects_invalid_version(self):
+        with self.assertRaisesRegex(ValueError, "valid SemVer"):
+            bust_cache.bump_version("1.2", "patch")
 
     def test_rejects_plugin_name_mismatch_before_install(self):
         root, manifest_path, marketplace_path = self.make_repo()
@@ -58,7 +81,7 @@ class BustCacheTests(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             bust_cache.refresh_plugin(
-                "workflow", root, marketplace_path, "local-test", run=run
+                "workflow", root, marketplace_path, "patch", run=run
             )
 
         run.assert_not_called()
@@ -70,7 +93,7 @@ class BustCacheTests(unittest.TestCase):
         marketplace_path.write_text(json.dumps({"name": "not valid"}), encoding="utf-8")
 
         with self.assertRaises(ValueError):
-            bust_cache.refresh_plugin("workflow", root, marketplace_path, "local-test")
+            bust_cache.refresh_plugin("workflow", root, marketplace_path, "patch")
 
         self.assertEqual(manifest_path.read_text(encoding="utf-8"), original_contents)
 
@@ -81,7 +104,7 @@ class BustCacheTests(unittest.TestCase):
         with patch.object(bust_cache, "find_codex", return_value="codex.CMD"):
             with self.assertRaisesRegex(RuntimeError, "exit code 7"):
                 bust_cache.refresh_plugin(
-                    "workflow", root, marketplace_path, "local-test", run=run
+                    "workflow", root, marketplace_path, "patch", run=run
                 )
 
     def test_reports_missing_codex(self):
@@ -91,7 +114,7 @@ class BustCacheTests(unittest.TestCase):
         with patch.object(bust_cache, "find_codex", side_effect=FileNotFoundError("missing")):
             with self.assertRaisesRegex(FileNotFoundError, "missing"):
                 bust_cache.refresh_plugin(
-                    "workflow", root, marketplace_path, "local-test", run=run
+                    "workflow", root, marketplace_path, "patch", run=run
                 )
 
         run.assert_not_called()
